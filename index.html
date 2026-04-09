@@ -61,11 +61,28 @@
       transition: background 0.15s, color 0.15s;
     }
     .download:hover { background: #333; color: #fff; }
+    .about {
+      max-width: 560px;
+      margin: 0 auto 48px;
+      text-align: center;
+      color: #888;
+      font-size: 0.82rem;
+      line-height: 1.7;
+    }
+    .about a { color: #aaa; text-decoration: none; border-bottom: 1px solid #333; }
+    .about a:hover { color: #fff; border-color: #666; }
     #status { text-align: center; color: #888; font-size: 0.8rem; margin-bottom: 16px; min-height: 1.2em; }
   </style>
 </head>
 <body>
   <h1>Wisp Animations</h1>
+  <p class="about">
+    A collection of <strong style="color:#ccc">DragonBones skeletal animations</strong> for the Wisp character,
+    rendered live in the browser via PixiJS. Each card plays the animation in real time —
+    click <em>Download ZIP</em> to grab the skeleton, texture atlas, and atlas data ready to drop into your project.
+    <br><br>
+    Made by <a href="https://github.com/VukSDev" target="_blank">VukSDev</a>.
+  </p>
   <p id="status">Loading texture...</p>
   <div id="sections"></div>
 
