@@ -190,7 +190,7 @@ var AABB_CX = ${AABB_CX}, AABB_CY = ${AABB_CY};
       sliderWrap.className = 'slider-wrap';
       var zoomOut = document.createElement('span'); zoomOut.textContent = '−';
       var slider = document.createElement('input');
-      slider.type = 'range'; slider.min = '0.5'; slider.max = '2'; slider.step = '0.01'; slider.value = '1';
+      slider.type = 'range'; slider.min = '0.5'; slider.max = '2'; slider.step = '0.01'; slider.value = '0.75';
       slider.id = 'sl' + i;
       var zoomIn = document.createElement('span'); zoomIn.textContent = '+';
       sliderWrap.appendChild(zoomOut);
@@ -239,7 +239,7 @@ img.onload = function() {
         display.x = CW / 2 - AABB_CX * s;
         display.y = CH / 2 - AABB_CY * s;
       }
-      applyZoom(1);
+      applyZoom(0.75);
       app.stage.addChild(display);
       display.animation.play(a.anim, 0);
 
