@@ -38,9 +38,10 @@ const pngB64 = 'data:image/png;base64,' +
 
 // aabb: x=-516.19, y=-1189.49, w=1285.14, h=1505.34 (same for all)
 const CW = 260, CH = 300;
-const SCALE = Math.min(CW / 1285.14, CH / 1505.34);
-const PX    = (CW / 2 - (-516.19 + 1285.14 / 2) * SCALE).toFixed(2);
-const PY    = (CH / 2 - (-1189.49 + 1505.34 / 2) * SCALE).toFixed(2);
+const SCALE  = Math.min(CW / 1285.14, CH / 1505.34);
+// Armature center in DragonBones space (used to keep character centred when zooming)
+const AABB_CX = (-516.19 + 1285.14 / 2).toFixed(4);   //  126.38
+const AABB_CY = (-1189.49 + 1505.34 / 2).toFixed(4);  // -436.82
 
 const html = `<!DOCTYPE html>
 <html lang="en">
@@ -115,6 +116,19 @@ const html = `<!DOCTYPE html>
     }
     .about a { color: #aaa; text-decoration: none; border-bottom: 1px solid #333; }
     .about a:hover { color: #fff; border-color: #666; }
+    .slider-wrap {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.68rem;
+      color: #555;
+    }
+    .slider-wrap input[type=range] {
+      flex: 1;
+      accent-color: #666;
+      cursor: pointer;
+    }
     #status { text-align: center; color: #888; font-size: 0.8rem; margin-bottom: 16px; min-height: 1.2em; }
   </style>
 </head>
@@ -135,7 +149,8 @@ var ANIMS    = ${JSON.stringify(anims)};
 var SKE_DATA = ${JSON.stringify(skeData)};
 var TEX_DATA = ${JSON.stringify(texData)};
 var PNG_SRC  = ${JSON.stringify(pngB64)};
-var CW = ${CW}, CH = ${CH}, SCALE = ${SCALE.toFixed(6)}, PX = ${PX}, PY = ${PY};
+var CW = ${CW}, CH = ${CH}, SCALE = ${SCALE.toFixed(6)};
+var AABB_CX = ${AABB_CX}, AABB_CY = ${AABB_CY};
 
 (function buildCards() {
   var container = document.getElementById('sections');
@@ -171,6 +186,18 @@ var CW = ${CW}, CH = ${CH}, SCALE = ${SCALE.toFixed(6)}, PX = ${PX}, PY = ${PY};
       lbl.appendChild(nm);
       card.appendChild(lbl);
 
+      var sliderWrap = document.createElement('div');
+      sliderWrap.className = 'slider-wrap';
+      var zoomOut = document.createElement('span'); zoomOut.textContent = '−';
+      var slider = document.createElement('input');
+      slider.type = 'range'; slider.min = '0.5'; slider.max = '2'; slider.step = '0.01'; slider.value = '1';
+      slider.id = 'sl' + i;
+      var zoomIn = document.createElement('span'); zoomIn.textContent = '+';
+      sliderWrap.appendChild(zoomOut);
+      sliderWrap.appendChild(slider);
+      sliderWrap.appendChild(zoomIn);
+      card.appendChild(sliderWrap);
+
       var dl = document.createElement('a');
       dl.className = 'download';
       dl.href = a.folder + '/' + a.folder + '.zip';
@@ -205,10 +232,19 @@ img.onload = function() {
       });
       var display = factory.buildArmatureDisplay('Armature');
       if (!display) { console.error('buildArmatureDisplay failed for', a.anim); return; }
-      display.x = PX; display.y = PY;
-      display.scale.set(SCALE);
+
+      function applyZoom(zoom) {
+        var s = SCALE * zoom;
+        display.scale.set(s);
+        display.x = CW / 2 - AABB_CX * s;
+        display.y = CH / 2 - AABB_CY * s;
+      }
+      applyZoom(1);
       app.stage.addChild(display);
       display.animation.play(a.anim, 0);
+
+      var slider = document.getElementById('sl' + i);
+      if (slider) slider.addEventListener('input', function() { applyZoom(parseFloat(this.value)); });
     });
 
     document.getElementById('status').style.display = 'none';
