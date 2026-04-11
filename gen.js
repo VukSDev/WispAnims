@@ -28,13 +28,19 @@ const anims = fs.readdirSync(base)
 
 if (!anims.length) { console.error('No animation folders found.'); process.exit(1); }
 
-// All skeletons share the same data — use the first one found
-const first = anims[0].folder;
-const skeData = JSON.parse(fs.readFileSync(path.join(base, first, first + '_ske.json'), 'utf8'));
-const texData = JSON.parse(fs.readFileSync(path.join(base, first, first + '_tex.json'), 'utf8'));
+// Use the skeleton with the most animations — it will be the most complete one
+const richest = anims.reduce((best, a) => {
+  const ske = JSON.parse(fs.readFileSync(path.join(base, a.folder, a.folder + '_ske.json'), 'utf8'));
+  const count = ske.armature[0].animation.length;
+  return count > best.count ? { folder: a.folder, count } : best;
+}, { folder: anims[0].folder, count: 0 }).folder;
+
+const skeData = JSON.parse(fs.readFileSync(path.join(base, richest, richest + '_ske.json'), 'utf8'));
+const texData = JSON.parse(fs.readFileSync(path.join(base, richest, richest + '_tex.json'), 'utf8'));
 // Embed PNG as base64 — avoids file:// cross-origin block in WebGL texImage2D
 const pngB64 = 'data:image/png;base64,' +
-  fs.readFileSync(path.join(base, first, first + '_tex.png')).toString('base64');
+  fs.readFileSync(path.join(base, richest, richest + '_tex.png')).toString('base64');
+console.log('Using skeleton from:', richest, '(' + skeData.armature[0].animation.length + ' animations)');
 
 // aabb: x=-516.19, y=-1189.49, w=1285.14, h=1505.34 (same for all)
 const CW = 260, CH = 300;
